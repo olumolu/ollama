@@ -150,3 +150,75 @@ func BenchmarkParseName(b *testing.B) {
 		junkName = Parse("h/n/m:t")
 	}
 }
+
+const (
+	part80  = "88888888888888888888888888888888888888888888888888888888888888888888888888888888"
+	part350 = "33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333"
+)
+
+var testCases = map[string]bool{ // name -> valid
+	"": false,
+
+	"_why/_the/_lucky:_stiff": true,
+
+	// minimal
+	"h/n/m:t": true,
+
+	"host/namespace/model:tag": true,
+	"host/namespace/model":     true,
+	"namespace/model":          true,
+	"model":                    true,
+
+	// long (but valid)
+	part80 + "/" + part80 + "/" + part80 + ":" + part80:  true,
+	part350 + "/" + part80 + "/" + part80 + ":" + part80: true,
+
+	// too long
+	part80 + "/" + part80 + "/" + part80 + ":" + part350:       false,
+	"x" + part350 + "/" + part80 + "/" + part80 + ":" + part80: false,
+
+	"h/nn/mm:t": true, // bare minimum part sizes
+
+	// unqualified
+	"m":     true,
+	"n/m:":  true,
+	"h/n/m": true,
+	"@t":    false,
+	"m@d":   false,
+
+	// invalids
+	"^":      false,
+	"mm:":    true,
+	"/nn/mm": true,
+	"//":     false, // empty model
+	"//mm":   true,
+	"hh//":   false, // empty model
+	"//mm:@": false,
+	"00@":    false,
+	"@":      false,
+
+	// not starting with alphanum
+	"-hh/nn/mm:tt": false,
+	"hh/-nn/mm:tt": false,
+	"hh/nn/-mm:tt": false,
+	"hh/nn/mm:-tt": false,
+
+	// smells like a flag
+	"-h": false,
+
+	// hosts
+	"host:https/namespace/model:tag": true,
+
+	// colon in non-host part before tag
+	"host/name:space/model:tag": false,
+}
+
+func TestParseNameValidation(t *testing.T) {
+	for s, valid := range testCases {
+		got := Parse(s)
+		if got.IsValid() != valid {
+			t.Logf("got: %v", got)
+			t.Errorf("Parse(%q).IsValid() = %v; want !%[2]v", s, got.IsValid())
+		}
+	}
+}

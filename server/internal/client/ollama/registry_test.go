@@ -622,7 +622,7 @@ func TestInsecureSkipVerify(t *testing.T) {
 	}))
 	defer s.Close()
 
-	const name = "ollama.com/library/insecure"
+	const name = "library/insecure"
 
 	var rc Registry
 	url := fmt.Sprintf("https://%s/%s", s.Listener.Addr(), name)

@@ -257,7 +257,7 @@ func parseName(s, mask string) (scheme string, n names.Name, d blob.Digest, err 
 		}
 	}
 	scheme, n, ds := names.ParseExtended(s)
-	if !n.IsValid() {
+	if !n.IsValid() && ds == "" {
 		return "", names.Name{}, blob.Digest{}, fmt.Errorf("%w: %q", ErrNameInvalid, s)
 	}
 	n = names.Merge(n, maskName)

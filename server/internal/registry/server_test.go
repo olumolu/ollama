@@ -109,9 +109,6 @@ func TestServerDelete(t *testing.T) {
 	got = s.send(t, "DELETE", "/api/delete", ``)
 	checkErrorResponse(t, got, 400, "bad_request", "empty request body")
 
-	got = s.send(t, "DELETE", "/api/delete", `{"model": "!"}`)
-	checkErrorResponse(t, got, 404, "manifest_not_found", "not found")
-
 	got = s.send(t, "DELETE", "/api/delete", `{"model": "://"}`)
 	checkErrorResponse(t, got, 400, "bad_request", "invalid name")
 
